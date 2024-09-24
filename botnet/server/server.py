@@ -114,8 +114,14 @@ class server_server:
     def open_server_timestamp(self):
         sock = self.soc
         ip = '0.0.0.0'
-        port = 'unique port A'
-        sock.bind((ip, int(port)))
+        port = 6060
+        try:
+            data = sock.bind((ip, int(port)))
+        except OSError:
+            print('error occured: run again')
+            data = sub.getoutput(f'sudo kill -9 $(sudo lsof -t -i :6060)')
+
+
         while True:
             try:
                 open_file = open(self.timestamp, 'r')
@@ -132,11 +138,11 @@ class server_server:
         sock = self.soc
         while True:
             try:
-               ip_A_B = ['server A ip', 'server B ip']
-               port = 'server A and B port'
+               ip_A_B = ['192.168.1.40', '192.168.2.1']
+               port = 6060
                for ip in ip_A_B:
                    try:
-                       sock.settimeout(10)
+                       sock.settimeout(100)
                        sock.connect((ip, int(port)))
                        break
                    except (soc.error, ConnectionRefusedError):
@@ -170,6 +176,9 @@ calculations, server_server = calculations(), server_server()
 engine1 = threading.Thread(target=calculations.create_id)
 engine2 = threading.Thread(target=server_server.open_server_timestamp)
 engine3 = threading.Thread(target=server_server.connect_server_timestamp)
+
+engine2.start()
+engine3.start()
 
 
 
