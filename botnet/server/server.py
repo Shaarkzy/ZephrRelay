@@ -115,61 +115,57 @@ class server_server:
         sock = self.soc
         ip = '0.0.0.0'
         port = 6060
-        try:
-            data = sock.bind((ip, int(port)))
-        except OSError:
-            print('error occured: run again')
-            data = sub.getoutput(f'sudo kill -9 $(sudo lsof -t -i :6060)')
-
-
+        sock.bind((ip, port))
+        sock.listen()
         while True:
             try:
-                open_file = open(self.timestamp, 'r')
-                data = open_file.read()
-
-                sock.listen(5)
-                conn, addr = sock.accept()
-                conn.send(data.encode())
+               open_file = open(self.timestamp, 'r')
+               read_file = open_file.readline().strip()
+               data = read_file
+               open_file.close
+            
+               conn, addr = sock.accept()
+               conn.send(data.encode())
+               print('data sent')
             except KeyboardInterrupt:
                 conn.close()
-                break
+            
 
     def connect_server_timestamp(self):
-        sock = self.soc
+
         while True:
             try:
-               ip_A_B = ['192.168.1.40', '192.168.2.1']
-               port = 6060
-               for ip in ip_A_B:
-                   try:
-                       sock.settimeout(100)
-                       sock.connect((ip, int(port)))
-                       break
-                   except (soc.error, ConnectionRefusedError):
-                      pass
-               data = sock.recv(20480).decode()
-               #compare stamps
-               mate_server_stamp = str(data)
-               open_file_home = open(self.timestamp, 'r')
-               home_server_stamp = open_file_home.read()
-               stp1 = datetime.strptime(mate_server_stamp, '%y-%m-%d %H:%M:%S')
-               stp2 = datetime.strptime(home_server_stamp, '%y-%m-%d %H:%M:%S')
-               if stp1 > stp2:
-                   open_file = open(self.timestamp, 'w')
-                   open_file.write(str(data))
-                   open_file.close()
-               else:
-                   pass
+                sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
+                tm.sleep(5)
+                open_file = open(self.timestamp, 'r')
+                read_file = open_file.readline().strip()
+                home_data = read_file
+                open_file.close()
+
+                sock.connect(('192.168.1.214', 6060))
+                data = sock.recv(1024).decode()
+                print('data received')
+                mate_data = data
+
+                mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S')
+                home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S')
+
+                if mate > home:
+                    open_file = open(self.timestamp, 'w')
+                    write_file = open_file.write(mate_data)
+                    open_file.close()
+
+                    sock.close()
+                else:
+                    print('up to date')
+                    sock.close()
+
             except KeyboardInterrupt:
-                sock.close()
+                 sock.close()
+
+    
 
 
-
-
-
-
-
-       
 #code wont be executed, not a working code !!!!!!!
 
 calculations, server_server = calculations(), server_server()
