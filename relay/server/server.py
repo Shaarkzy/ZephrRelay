@@ -42,12 +42,12 @@ class calculations:
             for line in lines:
                 if search_key in line:
                     user_line = line.strip()
-                    return True
+                    return true
                     break
             #id[0] user[1] key range[2] ip addr [3]
 
         except:
-            return False
+            return false
 
 
     def create_id(self, user_secret, ip_addr):
@@ -59,6 +59,14 @@ class calculations:
         for line in lines:
             user_line = line.strip().split('-')[0]
         create_file = open(self.userdata, 'a')
+
+        '''while True:
+            user_spe = input('enter any 8 random letter: ')
+            length = len(user_spe)
+            if length < 8 or length > 8:
+                print('text should be 8')
+            else:
+                break'''
 
         new_id = int(user_line) + 10
         key_range = self.calc_range()+'\n'
@@ -264,10 +272,10 @@ engine2 = threading.Thread(target=server_server.open_server_timestamp)
 engine3 = threading.Thread(target=server_server.connect_server_timestamp)
 engine4 = threading.Thread(target=client_server.conn_relay)
 
-#initiate programs
-engine2.start()
-engine3.start()
-engine4.start()
+#program still on build
+#engine2.start()
+#engine3.start()
+#engine4.start()
 
 
 
