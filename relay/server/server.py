@@ -42,12 +42,12 @@ class calculations:
             for line in lines:
                 if search_key in line:
                     user_line = line.strip()
-                    return true
+                    return True
                     break
             #id[0] user[1] key range[2] ip addr [3]
 
         except:
-            return false
+            return False
 
 
     def create_id(self, user_secret, ip_addr):
@@ -59,14 +59,6 @@ class calculations:
         for line in lines:
             user_line = line.strip().split('-')[0]
         create_file = open(self.userdata, 'a')
-
-        '''while True:
-            user_spe = input('enter any 8 random letter: ')
-            length = len(user_spe)
-            if length < 8 or length > 8:
-                print('text should be 8')
-            else:
-                break'''
 
         new_id = int(user_line) + 10
         key_range = self.calc_range()+'\n'
