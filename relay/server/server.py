@@ -29,60 +29,62 @@ class calculations:
             self.error = 'error'
             self.userdata = sub.getoutput('pwd')+'/UTILS/users.txt'
             self.timestamp = sub.getoutput('pwd')+'/UTILS/timestamp.txt'
+            self.lock = threading.Lock()
         except:
             pass
 
     def check_id_info(self, search_key):
-        #open file 
-        open_file = open(self.userdata, 'r')
-        lines = open_file.readlines()
-        open_file.close()
+        #open file
+        #with self.lock:
+        if True:
+            open_file = open(self.userdata, 'r')
+            lines = open_file.readlines()
+            open_file.close()
 
         try:
             for line in lines:
                 if search_key in line:
-                    user_line = line.strip()
-                    return true
+                    #user_line = line.strip()
+                    return True
                     break
             #id[0] user[1] key range[2] ip addr [3]
 
         except:
-            return false
+            return False
 
 
     def create_id(self, user_secret, ip_addr):
         #open file
-        open_file = open(self.userdata, 'r')
-        lines = open_file.readlines()
+        #with self.lock:
+        if True:
+            open_file = open(self.userdata, 'r')
+            lines = open_file.readlines()
 
-        open_file.close
+            open_file.close
         for line in lines:
             user_line = line.strip().split('-')[0]
-        create_file = open(self.userdata, 'a')
+        with self.lock:
+            create_file = open(self.userdata, 'a')
 
-        '''while True:
-            user_spe = input('enter any 8 random letter: ')
-            length = len(user_spe)
-            if length < 8 or length > 8:
-                print('text should be 8')
-            else:
-                break'''
+            new_id = int(user_line) + 10
+            key_range = self.calc_range()
+            ip = (ip_addr)[0]+'\n'
+            new_data = str(new_id) + '-' + user_secret + '-' + key_range +'-'+ ip 
+            create_file.write(new_data)
 
-        new_id = int(user_line) + 10
-        key_range = self.calc_range()+'\n'
-        new_data = str(new_id) + '-' + user_secret + '-' + key_range + ip_addr 
-        create_file.write(new_data)
-
-        #initiate time stamp
-        self.create_time_stamp()
-        create_file.close()
+            #initiate time stamp
+            self.create_time_stamp()
+            create_file.close()
+            print('created user done')
         return key_range
 
     def calc_range(self):
         #open file to get the last assigned key range
-        open_file = open(self.userdata, 'r')
-        lines = open_file.readlines()
-        open_file.close()
+        #with self.lock:
+        if True:
+            open_file = open(self.userdata, 'r')
+            lines = open_file.readlines()
+            open_file.close()
 
         for line in lines:
             last_range = line.strip().split('-')[2].split(':')[1]
@@ -105,9 +107,11 @@ class calculations:
         #calculate timestamp
         calculated_stamp = formated_time_date + ' ' + formated_time_time
         #create file to store timestamp
-        open_file = open(self.timestamp, 'w')
-        open_file.write(calculated_stamp)
-        open_file.close()
+        #with self.lock:
+        if True:
+            open_file = open(self.timestamp, 'w')
+            open_file.write(calculated_stamp)
+            open_file.close()
 
 
 
@@ -120,6 +124,7 @@ class server_server:
         #declare global variable
         self.timestamp =sub.getoutput('pwd')+'/UTILS/timestamp.txt'
         self.soc = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
+        self.lock = threading.Lock()
 
     def open_server_timestamp(self):
         sock = self.soc
@@ -130,14 +135,16 @@ class server_server:
 
         while True:
             try:
-               open_file = open(self.timestamp, 'r')
-               read_file = open_file.readline().strip()
-               data = read_file
-               open_file.close
+                #with self.lock:
+                if True:
+                    open_file = open(self.timestamp, 'r')
+                    read_file = open_file.readline().strip()
+                    data = read_file
+                    open_file.close
             
-               conn, addr = sock.accept()
-               conn.send(data.encode())
-               print('data sent')
+                conn, addr = sock.accept()
+                conn.send(data.encode())
+                print('Data sent')
 
             except KeyboardInterrupt:
                 conn.close()
@@ -146,14 +153,16 @@ class server_server:
     def connect_server_timestamp(self):
         while True:
             try:
-                ipaddr = ['192.168.1.40', '192.168.1.208']
+                ipaddr = ['192.168.1.214', '192.168.1.208']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(5)
-                    open_file = open(self.timestamp, 'r')
-                    read_file = open_file.readline().strip()
-                    home_data = read_file
-                    open_file.close()
+                    #with self.lock:
+                    if True:
+                        open_file = open(self.timestamp, 'r')
+                        read_file = open_file.readline().strip()
+                        home_data = read_file
+                        open_file.close()
 
                     status = sock.connect_ex((ip, 6060))
                     if status == 0:
@@ -165,9 +174,11 @@ class server_server:
                         home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S')
 
                         if mate > home:
-                            open_file = open(self.timestamp, 'w')
-                            write_file = open_file.write(mate_data)
-                            open_file.close()
+                            #with self.lock:
+                            if True:
+                                open_file = open(self.timestamp, 'w')
+                                write_file = open_file.write(mate_data)
+                                open_file.close()
 
                             sock.close()
                         else:
@@ -187,30 +198,37 @@ class client_server:
         self.key = sub.getoutput('pwd')+'/UTILS/key.found'
         self.lastkey = sub.getoutput('pwd')+'/UTILS/lastkeys.txt'
 
-    def create_user(self, addrr):        
+    def create_user(self, conn, addrr):        
         user_key = conn.recv(1024).decode()
-        key_range = calculations().create_id(user_key, addrr)
+        print('user key received: create user')
+        key_range = calculations.create_id(user_key, addrr)
         print('user created')
         conn.send(key_range.encode())
 
 
-    def receive_key(self):
+    def receive_key(self, conn):
         key = conn.recv(1024).decode()
-        open_file = open(self.key, 'w')
-        open_file.write(key)
-        open_file.close()
-        #initiate all client self destruct
-        #self destruct funcrion ...... here
+        #with self.lock:
+        if True:
+            open_file = open(self.key, 'w')
+            open_file.write(key)
+            open_file.close()
+            print('valid key received')
+            #initiate all client self destruct
+            #self destruct funcrion ...... here
 
 
-    def update_client_key(self):
+    def update_client_key(self, conn):
+        print('update key received: ')
         user_secret, last_key = conn.recv(1024).decode().split(':')
         filter_data = calculations.check_id_info(user_secret)
 
         if filter_data == True:
-            open_file = open(self.lastkey, 'r')
-            read_file = open_file.readlines()
-            open_file.close()
+            #with self.lock:
+            if True:
+                open_file = open(self.lastkey, 'r')
+                read_file = open_file.readlines()
+                open_file.close()
 
             user_found = False
             for i in range(len(read_file)):
@@ -225,9 +243,15 @@ class client_server:
             if not user_found:
                 read_file.append(f'{user_secret}:{last_key}\n')
 
-            open_file = open(self.lastkey, 'w')
-            open_file.write(read_file)
-            open_file.close()
+            #with self.lock:
+            if True:
+                open_file = open(self.lastkey, 'w')
+                open_file.write(str(read_file))
+                print('user key updated')
+                open_file.close()
+        else:
+            print('user doesnt exist')
+
 
 
 
@@ -242,14 +266,19 @@ class client_server:
         while True:
             try:
                 conn, addr = sock.accept()
+                print('listening')
                 request = conn.recv(1024).decode()
+                print(request)
 
                 if request == 'create':
-                    self.create_user(addr)
+                    print('create received')
+                    self.create_user(conn, addr)
                 elif request == 'valid':
-                    self.receive_key()
-                elif requet == 'update':
-                    self.update_client_key()
+                    print('valid received')
+                    self.receive_key(conn)
+                elif request == 'update':
+                    print('update received')
+                    self.update_client_key(conn)
 
             except KeyboardInterrupt:
                 conn.close()

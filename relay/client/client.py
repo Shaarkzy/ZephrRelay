@@ -38,7 +38,9 @@ class client_server:
 
 
     def create_secret(self):
-        data = str(uuid.uuid4())[:12]
+        data = str(uuid.uuid4()).replace(':', '')[:14]
+        data = data.replace('-', '')
+
         return data
 
 
@@ -47,12 +49,14 @@ class client_server:
 
     def create_user(self):
         #sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-        while True:
+        user_cr = False
+        while not user_cr:
             try:
-                ipaddr = ['', '']
+                ipaddr = ['192.168.1.214', '123.123.1.2']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(2)
+                    print('create user check')
                     status = sock.connect_ex((ip, 5050))
 
                     secret = self.create_secret()
@@ -64,12 +68,21 @@ class client_server:
                         key_range = sock.recv(1024).decode()
                         data = secret + '-' + key_range
                   
-                        with self.lock:
+                        #with self.lock:
+                        if True:
+                            print('after self lock')
                             open_file = open(self.user, 'w')
                             open_file.write(data)
                             open_file.close()
                             sock.close()
-                        break
+                            print('user created')
+                            user_cr = True
+                            break
+                            
+
+                            sock.close()
+
+
 
                     else:
                         sock.close()
@@ -82,22 +95,24 @@ class client_server:
 
 
     def send_validkey(self):
-        while True:
-            with self.lock:
-                open_file = open(self.keyfound, 'r')
-                data = open_file.read()
-                open_file.close()
+        #with self.lock:
+        if True:
+            open_file = open(self.keyfound, 'r')
+            data = open_file.read()
+            open_file.close()
 
-            if data:
-                return True
-            else:
-                return False
-
-
+        if data:
+            return True
+        else:
+            return False
 
 
-    def update_key(self):
-        with self.lock:
+
+
+    def last_key(self):
+        print('client last key')
+        #with self.lock:
+        if True:
             open_file = open(self.lastkey, 'r')
             data = open_file.read()
             open_file.close()
@@ -107,23 +122,26 @@ class client_server:
 
 
 
-    def server_validkey(self, key):
+    def server_validkey(self, sock, key):
+        print('server valid key')
         sock.send('valid'.encode())
         tm.sleep(1)
         sock.send(key.encode())
 
-    def update_key(self, data):
+    def update_key(self, sock, data):
+        print('server update key')
         sock.send('update'.encode())
         tm.sleep(1)
         sock.send(data.encode())
+        print('key updated')
 
 
 
     def conn_relay(self):
         while True:
             try:
-                tm.sleep(50)
-                ipaddr = ['', '']
+                tm.sleep(5)
+                ipaddr = ['192.168.1.214', '123.123.1.2']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(2)
@@ -131,25 +149,30 @@ class client_server:
                     valid key
                     update key scanned
                     '''
-                    status = sock.connect_ex((ip, port))
+                    #code for valid key
+                    status = sock.connect_ex((ip, 5050))
                     if status == 0:
                         if self.send_validkey():
-                            with self.lock:
+                            #with self.lock:
+                            if True:
                                 open_file = open(keyfound, 'r')
                                 key = open_file.read()
-                                self.server_validkey(keyx)
+                                self.server_validkey(sock, keyx)
                         else:
+                            print('valid key not found')
                             pass
 
 
-                        last_key = self.update_key()
-                        with self.lock:
+                        #code to write last key to server
+                        last_key = self.last_key()
+                        #with self.lock:
+                        if True:
                             open_file = open(self.user, 'r')
                             user = open_file.readline().split('-')[0]
                             open_file.close()
 
                         data = user+':'+last_key
-                        self.update_key(data)
+                        self.update_key(sock, data)
                         sock.close()
 
                     else:
