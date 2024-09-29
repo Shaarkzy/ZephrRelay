@@ -44,51 +44,58 @@ class client_server:
         return data
 
 
+    def user_exists(self):
+        open_file = open(self.user, 'r')
+        read_file = open_file.read()
+        open_file.close()
+        if read_file:
+            return True
+        else:
+            return False
+
+
 
 
 
     def create_user(self):
         #sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-        user_cr = False
-        while not user_cr:
-            try:
-                ipaddr = ['192.168.1.214', '123.123.1.2']
-                for ip in ipaddr:
-                    sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-                    tm.sleep(2)
-                    print('create user check')
-                    status = sock.connect_ex((ip, 5050))
+        if not self.user_exists():
+            user_cr = False
+            while not user_cr:
+                try:
+                    ipaddr = ['192.168.1.214', '123.123.1.2']
+                    for ip in ipaddr:
+                        sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
+                        tm.sleep(2)
+                        status = sock.connect_ex((ip, 5050))
 
-                    secret = self.create_secret()
+                        secret = self.create_secret()
 
-                    if status == 0:
-                        sock.send('create'.encode())
-                        tm.sleep(4)
-                        sock.send(secret.encode())
-                        key_range = sock.recv(1024).decode()
-                        data = secret + '-' + key_range
+                        if status == 0:
+                            sock.send('create'.encode())
+                            tm.sleep(4)
+                            sock.send(secret.encode())
+                            key_range = sock.recv(1024).decode()
+                            data = secret + '-' + key_range
                   
-                        #with self.lock:
-                        if True:
-                            print('after self lock')
-                            open_file = open(self.user, 'w')
-                            open_file.write(data)
-                            open_file.close()
+                            #with self.lock:
+                            if True:
+                                open_file = open(self.user, 'w')
+                                open_file.write(data)
+                                open_file.close()
+                                sock.close()
+                                print('User created')
+                                user_cr = True
+                                break
+
+                        else:
                             sock.close()
-                            print('user created')
-                            user_cr = True
-                            break
-                            
+                            continue
+                except KeyboardInterrupt:
+                    sock.close()
 
-                            sock.close()
-
-
-
-                    else:
-                        sock.close()
-                        continue
-            except KeyboardInterrupt:
-                sock.close()
+        else:
+            print('Your Data Already Exists')
 
 
 
@@ -110,7 +117,6 @@ class client_server:
 
 
     def last_key(self):
-        print('client last key')
         #with self.lock:
         if True:
             open_file = open(self.lastkey, 'r')
@@ -123,17 +129,14 @@ class client_server:
 
 
     def server_validkey(self, sock, key):
-        print('server valid key')
         sock.send('valid'.encode())
         tm.sleep(1)
         sock.send(key.encode())
 
     def update_key(self, sock, data):
-        print('server update key')
         sock.send('update'.encode())
         tm.sleep(1)
         sock.send(data.encode())
-        print('key updated')
 
 
 
@@ -159,7 +162,6 @@ class client_server:
                                 key = open_file.read()
                                 self.server_validkey(sock, keyx)
                         else:
-                            print('valid key not found')
                             pass
 
 
@@ -191,8 +193,8 @@ engine1 = threading.Thread(target=client_server.create_user)
 engine2 = threading.Thread(target=client_server.conn_relay)
 
 #still on build
-#engine1.start()
-#engine2.start()
+engine1.start()
+engine2.start()
 
 
 

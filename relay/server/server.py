@@ -53,6 +53,8 @@ class calculations:
             return False
 
 
+
+
     def create_id(self, user_secret, ip_addr):
         #open file
         #with self.lock:
@@ -75,8 +77,12 @@ class calculations:
             #initiate time stamp
             self.create_time_stamp()
             create_file.close()
-            print('created user done')
+            print('User Connected To Relay')
         return key_range
+
+
+
+
 
     def calc_range(self):
         #open file to get the last assigned key range
@@ -144,7 +150,6 @@ class server_server:
             
                 conn, addr = sock.accept()
                 conn.send(data.encode())
-                print('Data sent')
 
             except KeyboardInterrupt:
                 conn.close()
@@ -167,7 +172,6 @@ class server_server:
                     status = sock.connect_ex((ip, 6060))
                     if status == 0:
                         data = sock.recv(1024).decode()
-                        print('data received')
                         mate_data = data
 
                         mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S')
@@ -179,10 +183,11 @@ class server_server:
                                 open_file = open(self.timestamp, 'w')
                                 write_file = open_file.write(mate_data)
                                 open_file.close()
+                                print('Time Stamp Updated')
 
                             sock.close()
                         else:
-                            print('up to date')
+                            print('Time Stamp Up TO Date')
                             sock.close()
                     else:
                         sock.close()
@@ -200,9 +205,8 @@ class client_server:
 
     def create_user(self, conn, addrr):        
         user_key = conn.recv(1024).decode()
-        print('user key received: create user')
         key_range = calculations.create_id(user_key, addrr)
-        print('user created')
+        print('User created Succesfully')
         conn.send(key_range.encode())
 
 
@@ -213,13 +217,11 @@ class client_server:
             open_file = open(self.key, 'w')
             open_file.write(key)
             open_file.close()
-            print('valid key received')
             #initiate all client self destruct
             #self destruct funcrion ...... here
 
 
     def update_client_key(self, conn):
-        print('update key received: ')
         user_secret, last_key = conn.recv(1024).decode().split(':')
         filter_data = calculations.check_id_info(user_secret)
 
@@ -231,26 +233,25 @@ class client_server:
                 open_file.close()
 
             user_found = False
-            for i in range(len(read_file)):
-                parts = read_file[i].strip().split(':')
-
-                if parts[0] == user_secret:
+            for data in read_file:
+                if data.startswith(f'{user_secret}:'):
+                    data = f'{user_secret}:{last_key}\n'
+                    print('user exist')
                     user_found = True
-                    read_file[i] = f'{user_secret}:{last_key}\n'
-
                     break
 
             if not user_found:
-                read_file.append(f'{user_secret}:{last_key}\n')
+                data = f'{user_secret}:{last_key}\n'
+                print('user doesnt exist')
 
             #with self.lock:
             if True:
                 open_file = open(self.lastkey, 'w')
-                open_file.write(str(read_file))
-                print('user key updated')
+                open_file.write(str(data))
+                print('User key updated')
                 open_file.close()
         else:
-            print('user doesnt exist')
+            print("User doesn't exist in database")
 
 
 
@@ -266,18 +267,13 @@ class client_server:
         while True:
             try:
                 conn, addr = sock.accept()
-                print('listening')
                 request = conn.recv(1024).decode()
-                print(request)
 
                 if request == 'create':
-                    print('create received')
                     self.create_user(conn, addr)
                 elif request == 'valid':
-                    print('valid received')
                     self.receive_key(conn)
                 elif request == 'update':
-                    print('update received')
                     self.update_client_key(conn)
 
             except KeyboardInterrupt:
@@ -302,9 +298,13 @@ engine3 = threading.Thread(target=server_server.connect_server_timestamp)
 engine4 = threading.Thread(target=client_server.conn_relay)
 
 #program still on build
-#engine2.start()
-#engine3.start()
-#engine4.start()
+try:
+    engine2.start()
+    engine3.start()
+    engine4.start()
+except:
+    conn.close()
+    
 
 
 
