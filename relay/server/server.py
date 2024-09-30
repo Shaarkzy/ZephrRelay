@@ -4,6 +4,7 @@ import socket as soc
 import time as tm
 import subprocess as sub
 from datetime import datetime as dt
+from datetime import timedelta as tmd
 import threading
 
 '''
@@ -132,6 +133,7 @@ class server_server:
         self.userdata = sub.getoutput('pwd')+'/UTILS/users.txt'
         self.soc = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
         self.lock = threading.Lock()
+        self.delay = tmd(seconds=10)
 
     def open_server_timestamp(self):
         sock = self.soc
@@ -168,7 +170,7 @@ class server_server:
                 ipaddr = ['192.168.1.214', '192.168.1.40']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-                    tm.sleep(5)
+                    #tm.sleep(2)
                     #with self.lock:
                     if True:
                         open_file = open(self.timestamp, 'r')
@@ -188,7 +190,7 @@ class server_server:
                         mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S')
                         home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S')
 
-                        if mate > home:
+                        if mate > (home - self.delay):
                             #with self.lock:
                             if True:
                                 open_file = open(self.userdata, 'w')
@@ -248,21 +250,24 @@ class client_server:
                 open_file.close()
 
             user_found = False
+            new_lines = []
             for data in read_file:
                 if data.startswith(f'{user_secret}:'):
-                    data = f'{user_secret}:{last_key}\n'
+                    new_lines.append(f'{user_secret}:{last_key}\n')
                     print('user exist')
                     user_found = True
                     break
+                else:
+                    new_lines.append(data)
 
             if not user_found:
-                data = f'{user_secret}:{last_key}\n'
+                new_lines.append(f'{user_secret}:{last_key}\n')
                 print('user doesnt exist')
 
             #with self.lock:
             if True:
                 open_file = open(self.lastkey, 'w')
-                open_file.write(str(data))
+                open_file.writelines(str(new_lines))
                 print('User key updated')
                 open_file.close()
         else:
