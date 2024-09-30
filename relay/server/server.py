@@ -128,7 +128,8 @@ class calculations:
 class server_server:
     def __init__(self):
         #declare global variable
-        self.timestamp =sub.getoutput('pwd')+'/UTILS/timestamp.txt'
+        self.timestamp = sub.getoutput('pwd')+'/UTILS/timestamp.txt'
+        self.userdata = sub.getoutput('pwd')+'/UTILS/users.txt'
         self.soc = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
         self.lock = threading.Lock()
 
@@ -145,11 +146,17 @@ class server_server:
                 if True:
                     open_file = open(self.timestamp, 'r')
                     read_file = open_file.readline().strip()
-                    data = read_file
+                    time_data = read_file
                     open_file.close
+
+                    open_file = open(self.userdata, 'r')
+                    read_file = open_file.read()
+                    user_data = read_file
+                    open_file.close()
             
                 conn, addr = sock.accept()
-                conn.send(data.encode())
+                conn.send(user_data.encode())
+                conn.send(time_data.encode())
 
             except KeyboardInterrupt:
                 conn.close()
@@ -158,7 +165,7 @@ class server_server:
     def connect_server_timestamp(self):
         while True:
             try:
-                ipaddr = ['192.168.1.214', '192.168.1.208']
+                ipaddr = ['192.168.1.214', '192.168.1.40']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(5)
@@ -170,9 +177,13 @@ class server_server:
                         open_file.close()
 
                     status = sock.connect_ex((ip, 6060))
+
                     if status == 0:
-                        data = sock.recv(1024).decode()
-                        mate_data = data
+                        user_data = sock.recv(2048).decode()
+                        database = user_data
+
+                        time_data = sock.recv(1024).decode()
+                        mate_data = time_data
 
                         mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S')
                         home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S')
@@ -180,6 +191,10 @@ class server_server:
                         if mate > home:
                             #with self.lock:
                             if True:
+                                open_file = open(self.userdata, 'w')
+                                open_file.write(database)
+                                open_file.close()
+                                print('Database Updated')
                                 open_file = open(self.timestamp, 'w')
                                 write_file = open_file.write(mate_data)
                                 open_file.close()
