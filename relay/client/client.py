@@ -63,7 +63,7 @@ class client_server:
             user_cr = False
             while not user_cr:
                 try:
-                    ipaddr = ['192.168.1.214', '123.123.1.2']
+                    ipaddr = ['192.168.1.214', '192.168.1.40']
                     for ip in ipaddr:
                         sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                         tm.sleep(2)
@@ -144,7 +144,7 @@ class client_server:
         while True:
             try:
                 tm.sleep(5)
-                ipaddr = ['192.168.1.214', '123.123.1.2']
+                ipaddr = ['192.168.1.214', '192.168.1.40']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(2)
