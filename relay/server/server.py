@@ -256,9 +256,9 @@ class client_server:
                     new_lines.append(f'{user_secret}:{last_key}\n')
                     print('user exist')
                     user_found = True
-                    break
                 else:
-                    pass
+new_lines.append(data)
+                    
 
             if not user_found:
                 new_lines.append(f'{user_secret}:{last_key}\n')
