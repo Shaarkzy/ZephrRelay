@@ -137,6 +137,7 @@ class client_server:
         sock.send('update'.encode())
         tm.sleep(1)
         sock.send(data.encode())
+        print('Last Key Scanned Sent To Server')
 
 
 
