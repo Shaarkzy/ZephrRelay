@@ -258,7 +258,7 @@ class client_server:
                     user_found = True
                     break
                 else:
-                    new_lines.append(data)
+                    pass
 
             if not user_found:
                 new_lines.append(f'{user_secret}:{last_key}\n')
@@ -267,7 +267,7 @@ class client_server:
             #with self.lock:
             if True:
                 open_file = open(self.lastkey, 'w')
-                open_file.writelines(str(new_lines))
+                open_file.writelines(new_lines)
                 print('User key updated')
                 open_file.close()
         else:
