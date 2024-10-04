@@ -109,7 +109,7 @@ class calculations:
     def create_time_stamp(self):
         current_datetime = dt.now()
         formated_time_date = current_datetime.strftime('%y-%m-%d')
-        formated_time_time = current_datetime.strftime('%H:%M:%S')
+        formated_time_time = current_datetime.strftime('%H:%M:%S.%f')
 
         #calculate timestamp
         calculated_stamp = formated_time_date + ' ' + formated_time_time
@@ -158,6 +158,7 @@ class server_server:
             
                 conn, addr = sock.accept()
                 conn.send(user_data.encode())
+                tm.sleep(4)
                 conn.send(time_data.encode())
 
             except KeyboardInterrupt:
@@ -167,7 +168,8 @@ class server_server:
     def connect_server_timestamp(self):
         while True:
             try:
-                ipaddr = ['192.168.1.214', '192.168.1.40']
+                #configure server ip
+                ipaddr = ['n.n.n.n']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     #tm.sleep(2)
@@ -187,10 +189,10 @@ class server_server:
                         time_data = sock.recv(1024).decode()
                         mate_data = time_data
 
-                        mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S')
-                        home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S')
+                        mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S.%f')
+                        home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S.%f')
 
-                        if mate > (home - self.delay):
+                        if mate > home:
                             #with self.lock:
                             if True:
                                 open_file = open(self.userdata, 'w')
@@ -249,27 +251,40 @@ class client_server:
                 read_file = open_file.readlines()
                 open_file.close()
 
-            user_found = False
-            new_lines = []
-            for data in read_file:
-                if data.startswith(f'{user_secret}:'):
-                    new_lines.append(f'{user_secret}:{last_key}\n')
-                    print('user exist')
-                    user_found = True
+                check = False
+                database = []
+                for data in read_file:
+                    data = data.replace('\n', '')
+                    if data.startswith(f'{user_secret}:'):
+                        new_data = f'{user_secret}:{last_key}'
+                        database.append(new_data)
+                        check = True
+
+                    else:
+                        database.append(data+'\n')
+
+                if not check:
+                    open_file = open(self.lastkey, 'r')
+                    read_file = open_file.readlines()
+                    user_data = f'{user_secret}:{last_key}'
+                    database = []
+                    for data in read_file:
+                        database.append(data)
+                    database.append(user_data)
+                    open_file.close()
+
+                    open_file = open(self.lastkey, 'w')
+                    open_file.writelines(database)
+                    open_file.close()
+
                 else:
-new_lines.append(data)
-                    
+                    open_file = open(self.lastkey, 'w')
+                    open_file.writelines(database)
+                    open_file.close()
+                print('User Key Updated')
 
-            if not user_found:
-                new_lines.append(f'{user_secret}:{last_key}\n')
-                print('user doesnt exist')
 
-            #with self.lock:
-            if True:
-                open_file = open(self.lastkey, 'w')
-                open_file.writelines(new_lines)
-                print('User key updated')
-                open_file.close()
+
         else:
             print("User doesn't exist in database")
 
@@ -312,16 +327,15 @@ new_lines.append(data)
 #code wont be executed, not a working code !!!!!!!
 
 calculations, server_server, client_server = calculations(), server_server(), client_server()
-engine1 = threading.Thread(target=calculations.create_id)
-engine2 = threading.Thread(target=server_server.open_server_timestamp)
-engine3 = threading.Thread(target=server_server.connect_server_timestamp)
-engine4 = threading.Thread(target=client_server.conn_relay)
+engine1 = threading.Thread(target=server_server.open_server_timestamp)
+engine2 = threading.Thread(target=server_server.connect_server_timestamp)
+engine3 = threading.Thread(target=client_server.conn_relay)
 
 #program still on build
 try:
-    engine2.start()
-    engine3.start()
-    engine4.start()
+    #engine1.start()
+    #engine2.start()
+    #engine3.start()
 except:
     conn.close()
     

@@ -63,7 +63,8 @@ class client_server:
             user_cr = False
             while not user_cr:
                 try:
-                    ipaddr = ['192.168.1.214', '192.168.1.40']
+                    #configure server ip
+                    ipaddr = ['n.n.n.n']
                     for ip in ipaddr:
                         sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                         tm.sleep(2)
@@ -75,6 +76,7 @@ class client_server:
                             sock.send('create'.encode())
                             tm.sleep(4)
                             sock.send(secret.encode())
+                            print('Connected To Server Relay')
                             key_range = sock.recv(1024).decode()
                             data = secret + '-' + key_range
                   
@@ -132,6 +134,7 @@ class client_server:
         sock.send('valid'.encode())
         tm.sleep(1)
         sock.send(key.encode())
+        print('Valid Key Sent To Server')
 
     def update_key(self, sock, data):
         sock.send('update'.encode())
@@ -144,8 +147,9 @@ class client_server:
     def conn_relay(self):
         while True:
             try:
-                tm.sleep(5)
-                ipaddr = ['192.168.1.214', '192.168.1.40']
+                tm.sleep(3)
+                #configure server ip
+                ipaddr = ['n.n.n.n']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(2)
@@ -160,7 +164,7 @@ class client_server:
                             #with self.lock:
                             if True:
                                 open_file = open(keyfound, 'r')
-                                key = open_file.read()
+                                keyx = open_file.read()
                                 self.server_validkey(sock, keyx)
                         else:
                             pass
@@ -194,8 +198,8 @@ engine1 = threading.Thread(target=client_server.create_user)
 engine2 = threading.Thread(target=client_server.conn_relay)
 
 #still on build
-engine1.start()
-engine2.start()
+#engine1.start()
+#engine2.start()
 
 
 
