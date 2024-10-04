@@ -64,7 +64,7 @@ class client_server:
             while not user_cr:
                 try:
                     #configure server ip
-                    ipaddr = ['n.n.n.n']
+                    ipaddr = ['192.168.1.214']
                     for ip in ipaddr:
                         sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                         tm.sleep(2)
@@ -149,7 +149,7 @@ class client_server:
             try:
                 tm.sleep(3)
                 #configure server ip
-                ipaddr = ['n.n.n.n']
+                ipaddr = ['192.168.1.214']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     tm.sleep(2)
@@ -179,6 +179,7 @@ class client_server:
                             open_file.close()
 
                         data = user+':'+last_key
+                        print(data)
                         self.update_key(sock, data)
                         sock.close()
 
@@ -198,8 +199,9 @@ engine1 = threading.Thread(target=client_server.create_user)
 engine2 = threading.Thread(target=client_server.conn_relay)
 
 #still on build
-#engine1.start()
-#engine2.start()
+engine1.start()
+#tm.sleep(2)
+engine2.start()
 
 
 
