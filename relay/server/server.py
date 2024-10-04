@@ -169,7 +169,7 @@ class server_server:
         while True:
             try:
                 #configure server ip
-                ipaddr = ['n.n.n.n']
+                ipaddr = ['192.168.1.214']
                 for ip in ipaddr:
                     sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                     #tm.sleep(2)
@@ -242,6 +242,7 @@ class client_server:
 
     def update_client_key(self, conn):
         user_secret, last_key = conn.recv(1024).decode().split(':')
+        print(user_secret+' '+ last_key)
         filter_data = calculations.check_id_info(user_secret)
 
         if filter_data == True:
@@ -259,6 +260,8 @@ class client_server:
                         new_data = f'{user_secret}:{last_key}'
                         database.append(new_data)
                         check = True
+                    elif data.startswith(':'):
+                        database.append('')
 
                     else:
                         database.append(data+'\n')
@@ -333,9 +336,9 @@ engine3 = threading.Thread(target=client_server.conn_relay)
 
 #program still on build
 try:
-    #engine1.start()
-    #engine2.start()
-    #engine3.start()
+    engine1.start()
+    engine2.start()
+    engine3.start()
 except:
     conn.close()
     
