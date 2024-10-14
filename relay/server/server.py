@@ -34,6 +34,7 @@ class calculations:
             self.error = 'error'
             self.userdata = sub.getoutput('pwd')+'/UTILS/users.txt'
             self.timestamp = sub.getoutput('pwd')+'/UTILS/timestamp.txt'
+            self.lastkey = sub.getoutput('pwd')+'/UTILS/lastkeys.txt'
             self.lock = threading.Lock()
         except:
             pass
@@ -50,6 +51,20 @@ class calculations:
             if search_key in line:
                 return True
                 #id[0] user[1] key range[2] ip addr [3]
+            else:
+                continue
+
+
+    def check_lastsec(self, searchsec):
+        if True:
+            open_file = open(self.lastkey, 'r')
+            lines = open_file.readlines()
+            open_file.close()
+
+        for line in lines:
+            if searchsec in line:
+                return True
+            #usersec[0] key[1]
             else:
                 continue
 
@@ -224,13 +239,13 @@ class server_server:
 
                         if status == 0:
                             user_data = sock.recv(2048).decode()
-                            database = user_data
+                            database = user_data.splitlines()
  
                             time_data = sock.recv(1024).decode()
                             mate_data = time_data
 
                             user_lastkey = sock.recv(2048).decode()
-                            lastkey = user_lastkey
+                            lastkeys = user_lastkey.splitlines()
 
                             mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S.%f')
                             home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S.%f')
@@ -238,9 +253,15 @@ class server_server:
                             if mate > home:
                                 #with self.lock:
                                 if True:
-                                    open_file = open(self.userdata, 'w')
-                                    open_file.write(database)
-                                    open_file.close()
+                                    for line in database:
+                                        user = line.split('-')[1]
+                                        if calculations.check_id_info(user):
+                                            print('user exist')
+                                            continue
+                                        else:
+                                            open_file = open(self.userdata, 'a')
+                                            open_file.write(line+'\n')
+                                            open_file.close()
                                     print('-Database Updated-')
 
                                     open_file = open(self.timestamp, 'w')
@@ -248,9 +269,14 @@ class server_server:
                                     open_file.close()
                                     print('-Time Stamp Updated-')
 
-                                    open_file = open(self.lastkey, 'w')
-                                    write_file = open_file.write(lastkey)
-                                    open_file.close()
+                                    for line in lastkeys:
+                                        secret = line.split(':')[0]
+                                        if calculations.check_searchsec(secret):
+                                            continue
+                                        else:
+                                            open_file = open(self.lastkey, 'a')
+                                            write_file = open_file.write(line+'\n')
+                                            open_file.close()
                                     print('-Last.Key DB Updated-')
 
 

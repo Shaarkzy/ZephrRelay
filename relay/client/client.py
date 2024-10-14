@@ -75,7 +75,7 @@ class client_server:
             while not user_cr:
                 try:
                     #configure server ip
-                    ipaddr = ['192.168.1.214', '192.168.1.41']
+                    ipaddr = ['192.168.1.40']
                     for ip in ipaddr:
                         sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                         tm.sleep(2)
@@ -156,7 +156,7 @@ class client_server:
 
 
     def funct1(self):
-        ipaddr = ['192.168.1.214']
+        ipaddr = ['192.168.1.40']
         for ip in ipaddr:
             sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
             status = sock.connect_ex((ip, 5050))
@@ -172,7 +172,7 @@ class client_server:
 
 
     def funct2(self):
-        ipaddr = ['192.168.1.214']
+        ipaddr = ['192.168.1.40']
         for ip in ipaddr:
             sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
             status = sock.connect_ex((ip, 5050))
