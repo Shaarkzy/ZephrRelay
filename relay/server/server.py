@@ -25,23 +25,18 @@ import signal
 
 print('-Welcome Host-\n-To Close The Program Properly: Hit Enter Key Thrice-')
 tm.sleep(4)
-
+print('\n -----SERVER RUNNING----')
 class calculations:
     def __init__(self):
-        #create a global variable for constants
         try:
-            #global variable here
             self.error = 'error'
             self.userdata = sub.getoutput('pwd')+'/UTILS/users.txt'
-            self.timestamp = sub.getoutput('pwd')+'/UTILS/timestamp.txt'
             self.lastkey = sub.getoutput('pwd')+'/UTILS/lastkeys.txt'
-            self.lock = threading.Lock()
+            self.logs = sub.getoutput('pwd')+'/UTILS/logfile.log'
         except:
             pass
 
     def check_id_info(self, search_key):
-        #open file
-        #with self.lock:
         if True:
             open_file = open(self.userdata, 'r')
             lines = open_file.readlines()
@@ -70,20 +65,32 @@ class calculations:
 
 
 
+    def log_(self, data):
+        if True:
+            open_file = open(self.logs, 'a')
+            current = dt.now()
+            formated_time_date = current.strftime('%y-%m-%d')
+            formated_time_time = current.strftime('%H:%M:%S.%f')
+            calculated = formated_time_date + ' ' + formated_time_time
+
+            data = data+' in time -> '+ calculated
+            open_file.write(data+'\n')
+            open_file.close()
+
+
+
+
 
 
 
     def create_id(self, user_secret, ip_addr):
-        #open file
-        #with self.lock:
-        if True:
-            open_file = open(self.userdata, 'r')
-            lines = open_file.readlines()
-            open_file.close
+        open_file = open(self.userdata, 'r')
+        lines = open_file.readlines()
+        open_file.close
 
         for line in lines:
             user_line = line.strip().split('-')[0]
-        with self.lock:
+        if True:
             create_file = open(self.userdata, 'a')
 
             new_id = int(user_line) + 10
@@ -91,11 +98,8 @@ class calculations:
             ip = (ip_addr)[0]+'\n'
             new_data = str(new_id) + '-' + user_secret + '-' + key_range +'-'+ ip 
             create_file.write(new_data)
-
-            #initiate time stamp
-            self.create_time_stamp()
             create_file.close()
-            print('-User Connected To Relay-')
+            #-User Connected To Relay-
         return key_range
 
 
@@ -103,8 +107,6 @@ class calculations:
 
 
     def calc_range(self):
-        #open file to get the last assigned key range
-        #with self.lock:
         if True:
             open_file = open(self.userdata, 'r')
             lines = open_file.readlines()
@@ -116,27 +118,11 @@ class calculations:
         start = int(last_range, 16) #start for every users
         stop = int('7ffffff', 16) #key range end value
 
-        #create key range
         while start <= stop:
             end = start + interv
             key_range = hex(start).lstrip('0x').zfill(12) + ':' + hex(min(end, stop +1) -1).lstrip('0x').zfill(12)
             start = end + 1
             return key_range
-
-    def create_time_stamp(self):
-        current_datetime = dt.now()
-        formated_time_date = current_datetime.strftime('%y-%m-%d')
-        formated_time_time = current_datetime.strftime('%H:%M:%S.%f')
-
-        #calculate timestamp
-        calculated_stamp = formated_time_date + ' ' + formated_time_time
-        #create file to store timestamp
-        #with self.lock:
-        if True:
-            open_file = open(self.timestamp, 'w')
-            open_file.write(calculated_stamp)
-            open_file.close()
-
 
 
 
@@ -145,8 +131,6 @@ class calculations:
 
 class server_server:
     def __init__(self):
-        #declare global variable
-        self.timestamp = sub.getoutput('pwd')+'/UTILS/timestamp.txt'
         self.userdata = sub.getoutput('pwd')+'/UTILS/users.txt'
         self.lastkey = sub.getoutput('pwd')+'/UTILS/lastkeys.txt'
         self.soc = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
@@ -166,7 +150,7 @@ class server_server:
         os._exit(0)
 
 
-    def open_server_timestamp(self):
+    def open_server_update(self):
         sock = self.soc
         ip = '0.0.0.0'
         port = 6060
@@ -175,20 +159,14 @@ class server_server:
         try:
             sock.bind((ip, port))
         except:
-            print('-An Error Occured: Killing Process -> TMPSERVER-\n-Please Do Close The Program Properly Next Time: Try Restarting The Program Now-')
+            print('\n-An Error Occured: Killing Process -> TMPSERVER-\n-Please Do Close The Program Properly Next Time: Try Restarting The Program Now-\n')
             sys('kill -9 $(lsof -t -i :6060)')
         sock.listen()
 
         while True:
             try:
                 if self.flag:
-                #with self.lock:
                     if True:
-                        open_file = open(self.timestamp, 'r')
-                        read_file = open_file.readline().strip()
-                        time_data = read_file
-                        open_file.close
-
                         open_file = open(self.userdata, 'r')
                         read_file = open_file.read()
                         user_data = read_file
@@ -204,8 +182,6 @@ class server_server:
                     tm.sleep(2)
                     conn.send(user_data.encode())
                     tm.sleep(2)
-                    conn.send(time_data.encode())
-                    tm.sleep(2)
                     conn.send(user_lastkey.encode())
                     conn.close()
                 else:
@@ -215,10 +191,10 @@ class server_server:
             except KeyboardInterrupt:
                 os._exit(0)
             except:
-                os._exit(0)
+                continue
             
 
-    def connect_server_timestamp(self):
+    def connect_server_update(self):
         while True:
             try:
                 if True:
@@ -226,8 +202,6 @@ class server_server:
                     ipaddr = ['192.168.1.214']
                     for ip in ipaddr:
                         sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-                        #tm.sleep(2)
-                        #with self.lock:
         
                         if True:
                             open_file = open(self.timestamp, 'r')
@@ -241,48 +215,46 @@ class server_server:
                             user_data = sock.recv(2048).decode()
                             database = user_data.splitlines()
  
-                            time_data = sock.recv(1024).decode()
-                            mate_data = time_data
-
                             user_lastkey = sock.recv(2048).decode()
                             lastkeys = user_lastkey.splitlines()
 
-                            mate = dt.strptime(mate_data, '%y-%m-%d %H:%M:%S.%f')
-                            home = dt.strptime(home_data, '%y-%m-%d %H:%M:%S.%f')
 
-                            if mate > home:
-                                #with self.lock:
+                            if True:
                                 if True:
+                                    open_file = open(self.userdata, 'r')
+                                    read_file = open_file.readlines()
+                                    open_file.close()
+                                    for line in read_file:
+                                        id_, user_, key_, ip_  = line.split('-')
+                                    gap = '-'
+                                    id_ = str(int(id_)+10)
+                                    line = id_+gap+user_+gap+key_+gap+ip_
+                                    
                                     for line in database:
                                         user = line.split('-')[1]
                                         if calculations.check_id_info(user):
-                                            print('user exist')
                                             continue
                                         else:
                                             open_file = open(self.userdata, 'a')
                                             open_file.write(line+'\n')
                                             open_file.close()
-                                    print('-Database Updated-')
-
-                                    open_file = open(self.timestamp, 'w')
-                                    write_file = open_file.write(mate_data)
-                                    open_file.close()
-                                    print('-Time Stamp Updated-')
+                                            #-Database Updated-
 
                                     for line in lastkeys:
                                         secret = line.split(':')[0]
-                                        if calculations.check_searchsec(secret):
+                                        if calculations.check_lastsec(secret):
                                             continue
+                                            
                                         else:
                                             open_file = open(self.lastkey, 'a')
                                             write_file = open_file.write(line+'\n')
                                             open_file.close()
-                                    print('-Last.Key DB Updated-')
+                                           #-Last Key DB Updated-
 
 
                                 sock.close()
                             else:
-                               print('-Time Stamp Up TO Date-')
+                               #-Time Stamp Up TO Date-
                                sock.close()
                         else:
                             sock.close()
@@ -294,7 +266,7 @@ class server_server:
             except KeyboardInterrupt:
                 os._exit(0)
             except:
-                os._exit(0)
+                continue
 
 
 class client_server:
@@ -306,15 +278,15 @@ class client_server:
     def create_user(self, conn, addrr):        
         user_key = conn.recv(1024).decode()
         key_range = calculations.create_id(user_key, addrr)
-        print(f'-Connected Device: {addrr[0]}-')
-        print('-User Created Succesfully-')
+        #-Connected Device: {addrr[0]}-
+
         tm.sleep(2)
         conn.send(key_range.encode())
+        #-User Created Succesfully-
 
 
     def receive_key(self, conn):
         key = conn.recv(1024).decode()
-        #with self.lock:
         if True:
             open_file = open(self.key, 'w')
             open_file.write(key)
@@ -331,7 +303,6 @@ class client_server:
             filter_data = calculations.check_id_info(user_secret)
 
             if filter_data == True:
-                #with self.lock:
                 if True:
                     open_file = open(self.lastkey, 'r')
                     read_file = open_file.readlines()
@@ -369,12 +340,15 @@ class client_server:
                         open_file = open(self.lastkey, 'w')
                         open_file.writelines(database)
                         open_file.close()
-                    print('-User Key Updated-')
+                    #-User Key Updated-'
 
 
 
             else:
-                print("-User doesn't exist in database-")
+                pass
+                #-User doesn't exist in database-
+        except KeyboardInterrupt:
+            os._exit(0)
         except:
             pass
 
@@ -390,7 +364,7 @@ class client_server:
         try:
             sock.bind(('0.0.0.0', 5050))
         except:
-            print('-An Error Occured: killing Process -> RELAY-\n-Please Close The Program Properly Next Time, Try Restarting The Program Now- ')
+            print('\n-An Error Occured: killing Process -> RELAY-\n-Please Close The Program Properly Next Time, Try Restarting The Program Now- \n')
             sys('kill -9 $(lsof -t -i :5050)')
         sock.listen()
 
@@ -423,8 +397,8 @@ class client_server:
 
 
 calculations, server_server, client_server = calculations(), server_server(), client_server()
-engine1 = threading.Thread(target=server_server.open_server_timestamp)
-engine2 = threading.Thread(target=server_server.connect_server_timestamp)
+engine1 = threading.Thread(target=server_server.open_server_update)
+engine2 = threading.Thread(target=server_server.connect_server_update)
 engine3 = threading.Thread(target=client_server.conn_relay)
 engine4 = threading.Thread(target=server_server.inp)
 

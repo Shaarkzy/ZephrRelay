@@ -19,6 +19,7 @@ receive destruct sequence
 '''
 print('-Welcome User-\n-Please When Closing The program: Hit Enter Key Thrice-')
 tm.sleep(4)
+print('\n ----PROGRAM RUNNING----\n')
 
 
 class client_keyhunt:
@@ -34,7 +35,6 @@ class client_server:
         self.user = sub.getoutput('pwd')+'/UTILS/user.txt'
         self.lastkey = sub.getoutput('pwd')+'/UTILS/lastkey.txt'
         self.keyfound = sub.getoutput('pwd')+'/UTILS/key.found'
-        self.lock = threading.Lock()
 
 
     def inp(self):
@@ -43,7 +43,6 @@ class client_server:
         data = input('-Again-')
         print('Disconnected')
         os._exit(0)
-
 
 
 
@@ -75,7 +74,7 @@ class client_server:
             while not user_cr:
                 try:
                     #configure server ip
-                    ipaddr = ['192.168.1.40']
+                    ipaddr = ['192.168.1.214']
                     for ip in ipaddr:
                         sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
                         tm.sleep(2)
@@ -107,6 +106,8 @@ class client_server:
                             continue
                 except KeyboardInterrupt:
                     os._exit(0)
+                except:
+                    continue
 
         else:
             print('-Your Data Already Exists-')
@@ -143,52 +144,76 @@ class client_server:
 
 
     def server_validkey(self, sock, key):
-        tm.sleep(2)
-        sock.send('valid'.encode())
-        tm.sleep(2)
-        sock.send(key.encode())
+        try:
+            im.sleep(2)
+            sock.send('valid'.encode())
+            tm.sleep(2)
+            sock.send(key.encode())
+        except KeyboardInterrupt:
+            os._exit(0)
+        except:
+            pass
+
 
     def update_key(self, sock, data):
-        tm.sleep(2)
-        sock.send('update'.encode())
-        tm.sleep(2)
-        sock.send(data.encode())
+        try:
+            tm.sleep(2)
+            sock.send('update'.encode())
+            tm.sleep(2)
+            sock.send(data.encode())
+        except KeyboardInterrupt:
+            os._exit(0)
+        except:
+            pass
 
 
     def funct1(self):
-        ipaddr = ['192.168.1.40']
-        for ip in ipaddr:
-            sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-            status = sock.connect_ex((ip, 5050))
-            if status == 0:
-                if self.send_validkey():
-                    open_file = open(self.keyfound, 'r')
-                    keyx = open_file.read()
-                    self.server_validkey(sock, keyx)
-                    sock.close()
+        try:
+            ipaddr = ['192.168.1.214']
+            for ip in ipaddr:
+                sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
+                status = sock.connect_ex((ip, 5050))
+                if status == 0:
+                    if self.send_validkey():
+                        open_file = open(self.keyfound, 'r')
+                        keyx = open_file.read()
+                        self.server_validkey(sock, keyx)
+                        sock.close()
+                    else:
+                        sock.close()
+                        pass
                 else:
                     sock.close()
                     pass
+        except KeyboardInterrupt:
+            os._exit(0)
+        except:
+            pass
 
 
     def funct2(self):
-        ipaddr = ['192.168.1.40']
-        for ip in ipaddr:
-            sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
-            status = sock.connect_ex((ip, 5050))
-            if status == 0:
-                last_key = self.last_key()
-                open_file = open(self.user, 'r')
-                user = open_file.readline().split('-')[0]
-                open_file.close()
+        try:
+            ipaddr = ['192.168.1.214']
+            for ip in ipaddr:
+                sock = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
+                status = sock.connect_ex((ip, 5050))
+                if status == 0:
+                    last_key = self.last_key()
+                    open_file = open(self.user, 'r')
+                    user = open_file.readline().split('-')[0]
+                    open_file.close()
 
-                data = user+':'+last_key
-                self.update_key(sock, data)
-                sock.close()
+                    data = user+':'+last_key
+                    self.update_key(sock, data)
+                    sock.close()
 
-            else:
-                sock.close()
-                pass
+                else:
+                    sock.close()
+                    pass
+        except KeyboardInterrupt:
+            os._exit(0)
+        except:
+            pass
                 
 
 
@@ -201,6 +226,8 @@ class client_server:
                 self.funct2()
             except KeyboardInterrupt:
                 os._exit(0)
+            except:
+                continue
 
 
 
